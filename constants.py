@@ -15,7 +15,7 @@ grey         = (105,105,105)
 # ··· SCREEN ···
 
 size         = (1280, 720)
-fps          = 30
+fps          = 60
 
 
 # ··· POSITIONS ···
@@ -28,11 +28,13 @@ y = []
 for i in range(10, 700, 30):
 	y.append(i)
 print(x,y)
-print(len(y))
+
 
 # ··· SETUP ···
 
-point        = 0
+point     = [0]
 
-x_P = 20
-y_P = 11
+x_P       = 20
+y_P       = 11
+
+direccion = 'up'
