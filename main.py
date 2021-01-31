@@ -1,157 +1,184 @@
-# Librerias importadas
-import pygame as pg
+# Archivo Main donde está el flujo principal del juego, el juego se ejecutará desde este archivo.
+
+# Librerías importadas
 import sys, random, time
-from pygame.locals import *
-import constants as c
+import pygame as pg # Abreviamos pygame con pg
+import constants as c # Abreviamos constantes con c
 
-
-# Iniciar pygame
+# Inicia pygame
 pg.init()
 
-# Ventana 
-screen = pg.display.set_mode(c.size)
+# Funciones
+font_style = pg.font.SysFont("none", 25)
+def mensaje(msg, color, posx, posy): # Para mostrar texto por pantalla
+	mesg = font_style.render(msg, True, color)
+	pantalla.blit(mesg, [posx, posy])
 
-# FPS
-clock = pg.time.Clock()
-clock.tick(c.fps)
+def snake(bloque_snake, lista_snake):
+	for x in lista_snake:
+		pg.draw.rect(pantalla, c.green_snake, [x[0], x[1], bloque_snake, bloque_snake])
 
-# Imágenes
-manzana = pg.image.load("manzana.png")
-background = pg.image.load("bg.png")
-# Título
-pg.display.set_caption("Snake Game")
+#Pantalla
+pantalla = pg.display.set_mode((c.ancho,c.alto)) # Establece propiedades de tamaño a la pantalla
 
-# Posicion Inicial 
-player_x, player_y = c.x[c.x_P], c.y[c.y_P]
-old_player_x, old_player_y = player_x, player_y
+clock = pg.time.Clock() # FPS
 
-player_y_old, player_x_old = player_y, player_x
+pg.display.set_caption('Snake game') # Indica el nombre en la ventana
+
+bg = pg.image.load("imagenes/bg.png")
+manzana = pg.image.load("imagenes/manzana.png")
+snake_down = pg.image.load("imagenes/snake_down.png")
+snake_right = pg.image.load("imagenes/snake_right.png")
+snake_up = pg.image.load("imagenes/snake_up.png")
+snake_left = pg.image.load("imagenes/snake_left.png")
+setup_facil = pg.image.load("imagenes/facil.png")
+setup_normal = pg.image.load("imagenes/normal.png")
+setup_dificil = pg.image.load("imagenes/dificil.png")
+setup_si = pg.image.load("imagenes/si.png")
+setup_no = pg.image.load("imagenes/no.png")
+setup_bg = pg.image.load("imagenes/setup.png")
+game_over = pg.image.load("imagenes/game_over.png")
 
 
-manzana_x, manzana_y = random.choice(c.x), random.choice(c.y)
+def bucle_juego(): # Función general del juego
+	c.muerte = False
+	c.fin = False
+	for i in range(1):
+		pantalla.blit(setup_bg, (0, 0))
 
-punto =0
+	while c.setup:
+		print(c.fps)
+		for event in pg.event.get(): # Registra eventos
+				if event.type==pg.QUIT: # Registra el evento del botón de salir
+					sys.exit()
+				if event.type == pg.KEYDOWN:
+					if event.key == pg.K_1 or event.key == pg.K_KP1:
+						c.fps = 12
+						pantalla.blit(setup_bg, (0, 0))
+						pantalla.blit(setup_facil, (960, 175))
+					elif event.key == pg.K_2 or event.key == pg.K_KP2:
+						c.fps = 22
+						pantalla.blit(setup_bg, (0, 0))
+						pantalla.blit(setup_normal, (945, 270))	
+					elif event.key == pg.K_3 or event.key == pg.K_KP3:
+						c.fps = 40 
+						pantalla.blit(setup_bg, (0, 0))
+						pantalla.blit(setup_dificil, (960, 360))	
+					elif event.key == pg.K_6 or event.key == pg.K_KP6:
+						c.texturas = False
+						pantalla.blit(setup_bg, (0, 0))
+						pantalla.blit(setup_no, (1015, 605))
+					elif event.key == pg.K_5 or event.key == pg.K_KP5:
+						c.texturas = True
+						pantalla.blit(setup_bg, (0, 0))
+						pantalla.blit(setup_si, (930, 603))
+					elif event.key == pg.K_SPACE:
+						c.setup = False 
+
+					
+
+		pg.display.update()
 
 
-# Bucle de juego
-while True:
 
-	# Salida del juego
-	for event in pg.event.get():
-		if event.type == pg.QUIT:
-			sys.exit()
+					
+
+
+
+	while not c.fin: # Bucle While que se repetirá hasta que fin = True
+		while c.muerte: # Bucle que se ejecuta cuando muerte = True (cuando nos matan)
+			pantalla.blit(game_over,(0,0))
+			pg.display.update()# Actualiza pantalla
+			for event in pg.event.get(): # Registra eventos 
+				if event.type == pg.KEYDOWN: # Registra eventos de teclado de espacio y escape
+					if event.key == pg.K_ESCAPE: # Espacio
+						c.fin = True
+						c.muerte = False
+					if event.key == pg.K_SPACE: # Escape
+						c.snake_x= c.x[21]
+						c.snake_y= c.y[12]
+						c.largo_snake = 1
+						c.lista_snake=[]
+						c.snake_x_cambio, c.snake_y_cambio = 0,0
+
+
+						bucle_juego()
+
+
+		for event in pg.event.get(): # Registra eventos
+			if event.type==pg.QUIT: # Registra el evento del botón de salir
+				c.fin=True
+			if event.type == pg.KEYDOWN:
+				if event.key == pg.K_LEFT or event.key == pg.K_a:
+					c.snake_x_cambio = -c.bloque_snake
+					c.snake_y_cambio = 0
+				elif event.key == pg.K_RIGHT or event.key == pg.K_d:
+					c.snake_x_cambio = c.bloque_snake
+					c.snake_y_cambio = 0
+				elif event.key == pg.K_UP or event.key == pg.K_w:
+					c.snake_y_cambio = -c.bloque_snake
+					c.snake_x_cambio = 0
+				elif event.key == pg.K_DOWN or event.key == pg.K_s:
+					c.snake_y_cambio = c.bloque_snake
+					c.snake_x_cambio = 0
+
+		# Movimiento
+		c.snake_x += c.snake_x_cambio
+		c.snake_y += c.snake_y_cambio
+
+		if c.snake_x >= c.ancho-25 or c.snake_x < 0 or c.snake_y >= c.alto-25 or c.snake_y < 0: # Comprueba si se choca con los límites
+			c.muerte = True
+
+		# Objetos
+		if c.texturas:
+			pantalla.blit(bg, (0, 0))
+			pantalla.blit(manzana, (c.manzana_x, c.manzana_y))
+			
+		else : 
+			pantalla.fill(c.black)
+			pg.draw.rect(pantalla, c.red, [c.manzana_x, c.manzana_y, 30, 30])
+
+
 		
-		# Keyboard
-		elif event.type == pg.KEYDOWN:
-			if event.key == pg.K_UP:
-				c.direccion = "up"
-
-			if event.key == pg.K_DOWN:
-				c.direccion = "down"
-
-			if event.key == pg.K_LEFT:
-				c.direccion = "left"
-
-			if event.key == pg.K_RIGHT:
-				c.direccion = "right"
 
 
+		snake_cabeza = [] # Lista con la posicion de la cabeza de la serpiente en el momento
+		snake_cabeza.append(c.snake_x)
+		snake_cabeza.append(c.snake_y)
+
+		c.lista_snake.append(snake_cabeza)
+
+		if len(c.lista_snake) > c.largo_snake:
+			del c.lista_snake[0]
+ 
+		for x in c.lista_snake[:-1]:
+			if x == snake_cabeza:
+				c.muerte = True
+ 
+		snake(c.bloque_snake, c.lista_snake)
+
+		if c.snake_y_cambio<0:
+			pantalla.blit(snake_up, (c.snake_x, c.snake_y))
+		if c.snake_y_cambio>0:
+			pantalla.blit(snake_down, (c.snake_x, c.snake_y))
+		if c.snake_x_cambio<0:
+			pantalla.blit(snake_left, (c.snake_x, c.snake_y))
+		if c.snake_x_cambio>0:
+			pantalla.blit(snake_right,(c.snake_x,c.snake_y))
+
+		if c.snake_x == c.manzana_x and c.snake_y == c.manzana_y:
+			c.manzana_x = random.choice(c.x)
+			c.manzana_y = random.choice(c.y)
+			c.largo_snake += 1
 
 
+		clock.tick(c.fps) # Fps
+		pg.display.update() # Actualizamos la pantalla
 
-	# Color de fondo
-	screen.fill(c.dark_olive)
-	screen.blit(background, (-3, 0))
+	pg.quit()
+	quit()
 
-
-
-	# Lineas Verticales
-	#for i in range(10, 1280, 30):
-	#	pg.draw.line(screen, c.white, [i, 10], [i, 700], 1)
-
-	# Lineas Horizontales
-	#for i in range(10, 720, 30):
-	#	pg.draw.line(screen, c.white, [10, i], [1270, i], 1)
-
-	# Manzana 
-	screen.blit(manzana, (manzana_x,manzana_y))
-
-
-	#Puntos 
-	if player_y == manzana_y and player_x == manzana_x:
-		manzana_x, manzana_y = random.choice(c.x), random.choice(c.y)
-		punto +=1
-		cpoint = c.point
-		cpoint.append(punto)
-
-		print(c.point)
-
-
-
-	## Movimiento ##
-
-	# Movimiento hacia arriba
-	if c.y_P > 0:
-		if c.direccion == 'up':
-			 old_player_y= player_y
-			 player_y = c.y[c.y_P-1]
-			 c.y_P -= 1 
-			 time.sleep(0.05)
-
-	# Movimiento hacia abajo
-	if c.y_P < 22:
-		if c.direccion == 'down':
-			old_player_y= player_y
-			player_y = c.y[c.y_P+1]
-			c.y_P += 1 
-			time.sleep(0.05)
-
-		
-	# Movimineto hacia la izquierda
-	if c.x_P > 0:
-		if c.direccion == 'left':
-			old_player_x= player_x
-			player_x = c.x[c.x_P-1]
-			c.x_P -= 1 
-			time.sleep(0.05)
-			print(c.x_P)
-	
-	# Movimiento hacia la derecha 
-	if c.x_P < 41:
-		if c.direccion == 'right':
-			old_player_x= player_x
-			player_x = c.x[c.x_P+1]
-			c.x_P += 1 
-			time.sleep(0.05)
-			print(c.x_P)
-
-
-
-	# Player
-	pg.draw.rect(screen, c.white, (player_x, player_y, 30, 30))
-
-	if len(c.point) > 1:
-		if c.direccion == 'up':
-			for i in c.point:
-				pg.draw.rect(screen, c.white, (player_x, c.y[c.y_P+i] , 30, 30))
-				time.sleep(0.05)
-		if c.direccion == 'down':
-			for i in c.point:
-				pg.draw.rect(screen, c.white, (player_x, c.y[c.y_P-i], 30, 30))
-				time.sleep(0.05)
-		if c.direccion == 'right':
-			for i in c.point:
-				pg.draw.rect(screen, c.white, (c.x[c.x_P+1], player_y, 30, 30))
-				time.sleep(0.05)
-		if c.direccion == 'left':
-			for i in c.point:
-				pg.draw.rect(screen, c.white, (c.x[c.x_P-1], player_y, 30, 30))
-				time.sleep(0.05)
-
-
-
-
-	pg.display.flip()
+bucle_juego()
 
 
 
