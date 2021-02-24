@@ -75,15 +75,7 @@ def bucle_juego(): # Función general del juego
 					elif event.key == pg.K_SPACE:
 						c.setup = False 
 
-					
-
 		pg.display.update()
-
-
-
-					
-
-
 
 	while not c.fin: # Bucle While que se repetirá hasta que fin = True
 		while c.muerte: # Bucle que se ejecuta cuando muerte = True (cuando nos matan)
